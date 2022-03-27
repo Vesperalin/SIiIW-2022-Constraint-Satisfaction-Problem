@@ -10,7 +10,7 @@ class SameAmountZerosAsOnes(Constraint[VariablePosition, int]):
         super().__init__(variables)
         self.half_length = len(variables) / 2  # tu wczesniej bylo //
 
-    def is_satisfied(self, assignment: Dict[VariablePosition, int]):
+    def satisfied(self, assignment: Dict[VariablePosition, int]):
         zeros_amount = 0
         ones_amount = 0
 

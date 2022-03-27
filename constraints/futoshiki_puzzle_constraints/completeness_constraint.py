@@ -8,7 +8,7 @@ class CompletenessConstraint(Constraint[Tuple[int, int], int]):
     def __init__(self, variables: List[Tuple[int, int]]):
         super().__init__(variables)
 
-    def is_satisfied(self, assignment: Dict[Tuple[int, int], int]):
+    def satisfied(self, assignment: Dict[Tuple[int, int], int]):
         assigned = []
         for variable in self.variables:
             if variable in assignment:

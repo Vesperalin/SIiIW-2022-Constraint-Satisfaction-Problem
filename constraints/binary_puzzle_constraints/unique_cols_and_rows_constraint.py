@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+
 from constraints.constraint import Constraint
 from puzzle.variable_position import VariablePosition
 
@@ -7,20 +8,33 @@ from puzzle.variable_position import VariablePosition
 class UniqueColsAndRowsConstraint(Constraint[VariablePosition, int]):
     def __init__(self, variables: List[VariablePosition], size):
         super().__init__(variables)
-        self._size = size
+        self.size = size
 
-    def is_satisfied(self, assignment: Dict[VariablePosition, int]):
-        completed_rows = []
-        completed_columns = []
+    def satisfied(self, assignment: Dict[VariablePosition, int]):
+        full_rows = []
+        full_columns = []
 
-        for index in range(self._size):
-            current_row = [assignment[position] for position in assignment.keys() if position.row_number == index]
-            current_column = [assignment[position] for position in assignment.keys() if position.column_number == index]
+        for i in range(self.size):
+            current_row: list[int] = []
+            current_column: list[int] = []
 
-            if len(current_row) == self._size:
-                completed_rows.append(current_row)
+            for position in assignment.keys():
+                if position.row_number == i:
+                    current_row.append(assignment[position])
 
-            if len(current_column) == self._size:
-                completed_columns.append(current_column)
+                if position.column_number == i:
+                    current_column.append(assignment[position])
 
-        return len(completed_rows) == len(set(map(tuple, completed_rows))) and len(completed_columns) == len(set(map(tuple, completed_columns)))
+            if len(current_row) == self.size:
+                full_rows.append(current_row)
+
+            if len(current_column) == self.size:
+                full_columns.append(current_column)
+
+        list_of_rows = map(tuple, full_rows)
+        list_of_columns = map(tuple, full_columns)
+
+        rows_set = {*list_of_rows}
+        columns_set = {*list_of_columns}
+
+        return len(full_rows) == len(rows_set) and len(full_columns) == len(columns_set)

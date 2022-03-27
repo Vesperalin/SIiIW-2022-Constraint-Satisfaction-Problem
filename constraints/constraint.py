@@ -6,10 +6,11 @@ V = TypeVar('V')
 D = TypeVar('D')
 
 
+# Each Constraint consists of the variables it constrains and a method that checks whether it is satisfied()
 class Constraint(Generic[V, D], ABC):
     def __init__(self, variables: List[V]):
         self.variables = variables
 
     @abstractmethod
-    def is_satisfied(self, assignment: Dict[V, D]):
+    def satisfied(self, assignment: Dict[V, D]):
         pass
