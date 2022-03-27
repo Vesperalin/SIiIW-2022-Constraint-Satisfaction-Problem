@@ -1,72 +1,56 @@
 from utils.data_reader import read_data_from_file
 from puzzle.binary_puzzle import BinaryPuzzle
+from puzzle.puzzle import Puzzle
 from puzzle.futoshiki_puzzle import Futoshiki_Puzzle
-from solvers.CSP_solver import CSPSolver
+from solvers.CSP_backtracking_solver import CSPBacktrackingSolver
 
-# TODO add types
-# TODO refactor names
-# TODO add comments
-# TODO - zrozumieć constrainty
-# TODO - zrozumieć binary i futo
-# TODO zmienić w futo i binary rows i columns na jeden wymiar tylko np size
-# TODO - ogólnie te fory przepisać na starodawne fory
-# TODO - constrainty przepisać - nazwy i zmienne
-# TODO - pozmieniać to co się printuje na błędach
-# TODO - pozmieniać w CSP_Solver
-# TODO - pozmieniać w mainie troche
-# TODO - zmienić sposób rozruchu aplikacji
-# TODO - refactor UniqueColsAndRowsConstraint - już sił nie miałam
+
+def print_result_binary(result, size):
+    grid = []
+    for i in range(size):
+        grid.append([0 for j in range(size)])
+
+    for key in result.keys():
+        grid[key.row_number][key.column_number] = result[key]
+
+    for y in grid:
+        to_print: str = ''
+        for x in y:
+            to_print += (str(x) + ' ')
+        print(to_print)
+
+
+def print_result_futoshiki(result, size):
+    grid = []
+    for i in range(size):
+        grid.append([0 for j in range(size)])
+
+    for key in result.keys():
+        grid[key.row_number // 2][key.column_number // 2] = result[key]
+
+    for y in grid:
+        to_print: str = ''
+        for x in y:
+            to_print += (str(x) + ' ')
+        print(to_print)
 
 
 if __name__ == '__main__':
-    # for binary puzzle
-    data = read_data_from_file('binary_6x6')
-    binary = BinaryPuzzle(6, 6, data)
-    csp = CSPSolver(binary.variables, binary.domains)
+    """data: str = read_data_from_file('binary_6x6')
+    puzzle: Puzzle = BinaryPuzzle(6, data)"""
+    data: str = read_data_from_file('futoshiki_6x6')
+    puzzle: Puzzle = Futoshiki_Puzzle(6, data)
 
-    for constraint in binary.constraints:
-        csp.add_constraint(constraint)
-
+    csp = CSPBacktrackingSolver(puzzle)
     csp.backtracking_search({})
+    results = csp.results
 
-    solutions = csp.solutions
-
-    if len(solutions) == 0:
-        print(f"No solutions found for Binary {binary.rows} x {binary.columns}")
+    if len(results) == 0:
+        print('Solutions not found')
     else:
-        print(f'Found {len(solutions)} solutions for Binary {binary.rows} x {binary.columns}')
-        print("Sample result")
-
-        sample = list(solutions[0].values())
-
-        for index in range(len(sample)):
-            print(sample[index], end=' ')
-
-            if index % binary.rows == binary.rows - 1:
-                print()
-
-    data = read_data_from_file('futoshiki_4x4')
-    futoshiki = Futoshiki_Puzzle(4, 4, data)
-    # print(futoshiki)
-    csp = CSPSolver(futoshiki.variables, futoshiki.domains)
-
-    for constraint in futoshiki.constraints:
-        csp.add_constraint(constraint)
-
-    csp.backtracking_search({})
-
-    solutions = csp.solutions
-
-    if len(solutions) == 0:
-        print(f"No solutions found for Binary {futoshiki.rows} x {futoshiki.columns}")
-    else:
-        print(f'Found {len(solutions)} solutions for Binary {futoshiki.rows} x {futoshiki.columns}')
-        print("Sample result")
-
-        sample = list(solutions[0].values())
-
-        for index in range(len(sample)):
-            print(sample[index], end=' ')
-
-            if index % futoshiki.rows == futoshiki.rows - 1:
-                print()
+        print('Found {} solutions'.format(len(results)))
+        print("First result")
+        if type(puzzle) == BinaryPuzzle:
+            print_result_binary(results[0], puzzle.size)
+        else:
+            print_result_futoshiki(results[0], puzzle.size)

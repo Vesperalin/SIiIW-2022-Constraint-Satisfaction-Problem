@@ -1,14 +1,13 @@
-from typing import List, Dict
-
+from typing import Dict
 
 from constraints.constraint import Constraint
 from puzzle.variable_position import VariablePosition
 
 
+# constraint that checks if same amount of 0 as 1 in full row / column (in list of variables)
 class SameAmountZerosAsOnes(Constraint[VariablePosition, int]):
-    def __init__(self, variables: List[VariablePosition]):
+    def __init__(self, variables: list[VariablePosition]):
         super().__init__(variables)
-        self.half_length = len(variables) / 2  # tu wczesniej bylo //
 
     def satisfied(self, assignment: Dict[VariablePosition, int]):
         zeros_amount = 0
@@ -20,4 +19,4 @@ class SameAmountZerosAsOnes(Constraint[VariablePosition, int]):
             elif variable in assignment and assignment[variable] == 1:
                 ones_amount += 1
 
-        return zeros_amount <= self.half_length and ones_amount <= self.half_length
+        return zeros_amount <= (len(self.variables) / 2) and ones_amount <= (len(self.variables) / 2)

@@ -1,18 +1,18 @@
-from typing import List, Dict
-
+from typing import Dict
 
 from constraints.constraint import Constraint
 from puzzle.variable_position import VariablePosition
 
 
-class UniqueColsAndRowsConstraint(Constraint[VariablePosition, int]):
-    def __init__(self, variables: List[VariablePosition], size):
+# constraint that checks if rows columns (variables) have unique arrangement
+class UniqueConstraint(Constraint[VariablePosition, int]):
+    def __init__(self, variables: list[VariablePosition], size):
         super().__init__(variables)
-        self.size = size
+        self.size = size  # size is width/height of puzzle
 
     def satisfied(self, assignment: Dict[VariablePosition, int]):
-        full_rows = []
-        full_columns = []
+        fully_filled_rows = []
+        fully_filled_columns = []
 
         for i in range(self.size):
             current_row: list[int] = []
@@ -26,15 +26,15 @@ class UniqueColsAndRowsConstraint(Constraint[VariablePosition, int]):
                     current_column.append(assignment[position])
 
             if len(current_row) == self.size:
-                full_rows.append(current_row)
+                fully_filled_rows.append(current_row)
 
             if len(current_column) == self.size:
-                full_columns.append(current_column)
+                fully_filled_columns.append(current_column)
 
-        list_of_rows = map(tuple, full_rows)
-        list_of_columns = map(tuple, full_columns)
+        list_of_rows = map(tuple, fully_filled_rows)
+        list_of_columns = map(tuple, fully_filled_columns)
 
         rows_set = {*list_of_rows}
         columns_set = {*list_of_columns}
 
-        return len(full_rows) == len(rows_set) and len(full_columns) == len(columns_set)
+        return len(fully_filled_rows) == len(rows_set) and len(fully_filled_columns) == len(columns_set)

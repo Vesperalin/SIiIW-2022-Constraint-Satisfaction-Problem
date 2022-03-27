@@ -1,73 +1,87 @@
-from constraints.futoshiki_puzzle_constraints.unary_constraint import UnaryConstraint
+from typing import Dict
+
+from constraints.unary_constraint import UnaryConstraint
 from constraints.futoshiki_puzzle_constraints.compare_constraint import CompareConstraint
 from constraints.futoshiki_puzzle_constraints.completeness_constraint import CompletenessConstraint
 from puzzle.variable_position import VariablePosition
+from puzzle.puzzle import Puzzle
+from constraints.constraint import Constraint
 
 
-class Futoshiki_Puzzle:
-    def __init__(self, rows, columns, data):
-        self.rows = rows
-        self.columns = columns
-        self.data = (data + '-').split('\n')
-        self.variables = []  # krotki (y, x)
-        self.domains = {}
-        self.constraints = []
+# class represents futoshiki puzzle
+class Futoshiki_Puzzle(Puzzle):
+    def __init__(self, size: int, data: str):
+        super().__init__()
+        # override values from parent
+        self.size: int = size
+        self.data: list[str] = (data + '-').split('\n')
+        self.variables: list[VariablePosition] = []
+        self.domains: Dict[VariablePosition, list[int]] = {}
+        self.constraints: list[Constraint[VariablePosition, list[Constraint]]] = []
+        # defining fields content
         self.__transform_data()
+        # generate constraints
         self.__generate_comparison_constraints()
         self.__generate_completeness_constraints()
 
+    # transforms data from input and fills self.variables list
     def __transform_data(self):
-        for row in list(filter(lambda x: x % 2 != 1, list(range(0, 2 * self.rows - 1)))):
-            for column in range(len(self.data[row])):
-                if not self.data[row][column] == '>' and not self.data[row][column] == '<' and not self.data[row][column] == '-':
-                    variable = VariablePosition(row, column)
+        for y in list(filter(lambda e: e % 2 != 1, list(range(0, 2 * self.size - 1)))):
+            for x in range(len(self.data[y])):
+                if not self.data[y][x] == '>' and not self.data[y][x] == '<' and not self.data[y][x] == '-':
+                    variable = VariablePosition(y, x)
                     self.variables.append(variable)
-                    self.domains[variable] = list(range(1, self.rows + 1))
-                    if self.data[row][column] != 'x':
-                        self.constraints.append(UnaryConstraint(variable, lambda assignment, v=int(self.data[row][column]): assignment == v))
+                    self.domains[variable] = list(range(1, self.size + 1))
+                    if self.data[y][x] != 'x':
+                        self.constraints.append(UnaryConstraint(variable,
+                                                                lambda assignment,
+                                                                v=int(self.data[y][x]): assignment == v))
 
-    def __find_variable_position(self, row, column):
-        return list(filter(lambda var_position: var_position.row_number == row and var_position.column_number == column, self.variables))[0]
+    # helpers - finds VariablePosition object by coordinates
+    def __find_variable_position(self, y, x):
+        return list(filter(lambda var_position: var_position.row_number == y and var_position.column_number == x,
+                           self.variables))[0]
 
+    # create comparison constraints based on data (self.data) and add to self.constraints
     def __generate_comparison_constraints(self):
-        for row in range(2 * self.rows - 1):
-            for column in range(len(self.data[row])):
-                if not self.data[row][column] == '>' and not self.data[row][column] == '<' and not self.data[row][column] == '-':
+        for y in range(2 * self.size - 1):
+            for x in range(len(self.data[y])):
+                if not self.data[y][x] == '>' and not self.data[y][x] == '<' and not self.data[y][x] == '-':
                     pass
-                elif row % 2 == 0:
-                    if self.data[row][column] == '>':
-                        bigger = self.__find_variable_position(row, column - 1)
-                        smaller = self.__find_variable_position(row, column + 1)
-                        self.constraints.append(CompareConstraint(smaller, bigger))
-                    elif self.data[row][column] == '<':
-                        bigger = self.__find_variable_position(row, column + 1)
-                        smaller = self.__find_variable_position(row, column - 1)
-                        self.constraints.append(CompareConstraint(smaller, bigger))
-
+                elif y % 2 == 0:
+                    if self.data[y][x] == '>':
+                        greater_position = self.__find_variable_position(y, x - 1)
+                        smaller_position = self.__find_variable_position(y, x + 1)
+                        self.constraints.append(CompareConstraint(smaller_position, greater_position))
+                    elif self.data[y][x] == '<':
+                        greater_position = self.__find_variable_position(y, x + 1)
+                        smaller_position = self.__find_variable_position(y, x - 1)
+                        self.constraints.append(CompareConstraint(smaller_position, greater_position))
                 else:
-                    if self.data[row][column] == '>':
-                        bigger = self.__find_variable_position(row - 1, 2 * column)
-                        smaller = self.__find_variable_position(row + 1, 2 * column)
-                        self.constraints.append(CompareConstraint(smaller, bigger))
-                    elif self.data[row][column] == '<':
-                        bigger = self.__find_variable_position(row + 1, 2 * column)
-                        smaller = self.__find_variable_position(row - 1, 2 * column)
-                        self.constraints.append(CompareConstraint(smaller, bigger))
+                    if self.data[y][x] == '>':
+                        greater_position = self.__find_variable_position(y - 1, 2 * x)
+                        smaller_position = self.__find_variable_position(y + 1, 2 * x)
+                        self.constraints.append(CompareConstraint(smaller_position, greater_position))
+                    elif self.data[y][x] == '<':
+                        greater_position = self.__find_variable_position(y + 1, 2 * x)
+                        smaller_position = self.__find_variable_position(y - 1, 2 * x)
+                        self.constraints.append(CompareConstraint(smaller_position, greater_position))
 
+    # create completeness constraints and add to self.constraints
     def __generate_completeness_constraints(self):
-        for y in range(self.rows):
+        for y in range(self.size):
             row_coords = []
-            for x in range(self.columns):
+            for x in range(self.size):
                 row_coords.append(self.__find_variable_position(2 * y, 2 * x))
 
             self.constraints.append(CompletenessConstraint(row_coords))
 
-        for x in range(self.columns):
+        for x in range(self.size):
             column_coords = []
-            for y in range(self.rows):
+            for y in range(self.size):
                 column_coords.append(self.__find_variable_position(2 * y, 2 * x))
 
             self.constraints.append(CompletenessConstraint(column_coords))
 
     def __str__(self):
-        return f'Futoshiki puzzle - rows: {self.rows} columns: {self.columns} data: {self.data}'
+        return f'Futoshiki puzzle - size: {self.size} data: {self.data}'
