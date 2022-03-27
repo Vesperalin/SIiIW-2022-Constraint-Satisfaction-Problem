@@ -61,23 +61,15 @@ class Futoshiki_Puzzle(Puzzle):
                 if not self.data[y][x] == '>' and not self.data[y][x] == '<' and not self.data[y][x] == '-':
                     amount_skipped_x += 1
                 elif y % 2 == 0:
-                    if self.data[y][x] == '>':
-                        greater_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
-                        smaller_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x + 1)
-                        self.constraints.append(CompareConstraint(smaller_position, greater_position))
-                    elif self.data[y][x] == '<':
-                        greater_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x + 1)
-                        smaller_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
-                        self.constraints.append(CompareConstraint(smaller_position, greater_position))
+                    if self.data[y][x] == '>' or self.data[y][x] == '<':
+                        first_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
+                        second_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x + 1)
+                        self.constraints.append(CompareConstraint(second_position, first_position, self.data[y][x]))
                 else:
-                    if self.data[y][x] == '>':
-                        greater_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
-                        smaller_position = self.__find_variable_position(y - amount_skipped_y + 1, x - amount_skipped_x)
-                        self.constraints.append(CompareConstraint(smaller_position, greater_position))
-                    elif self.data[y][x] == '<':
-                        greater_position = self.__find_variable_position(y - amount_skipped_y + 1, x - amount_skipped_x)
-                        smaller_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
-                        self.constraints.append(CompareConstraint(smaller_position, greater_position))
+                    if self.data[y][x] == '>' or self.data[y][x] == '<':
+                        first_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
+                        second_position = self.__find_variable_position(y - amount_skipped_y + 1, x - amount_skipped_x)
+                        self.constraints.append(CompareConstraint(second_position, first_position, self.data[y][x]))
 
     # create completeness constraints and add to self.constraints
     def __generate_completeness_constraints(self):
