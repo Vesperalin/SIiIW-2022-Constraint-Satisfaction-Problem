@@ -14,11 +14,11 @@ class BinaryPuzzle(Puzzle):
     def __init__(self, size: int, data: str):
         super().__init__()
         # override values from parent
-        self.size: int = size
-        self.data: str = data.replace('\n', '')
         self.variables: list[VariablePosition] = []
         self.domains: Dict[VariablePosition, list[int]] = {}
-        self.constraints: list[Constraint[VariablePosition, list[Constraint]]] = []
+        self.constraints: list[Constraint] = []
+        self.size: int = size
+        self.data: str = data.replace('\n', '')
         # defining fields content
         self.__create_variables()
         self.__create_domains_for_variables()
@@ -39,6 +39,10 @@ class BinaryPuzzle(Puzzle):
         for position in self.variables:
             self.domains[position] = [0, 1]
 
+    # creates constraints that check if columns are unique and rows are unique and add to self.constraints
+    def __generate_unique_cols_and_rows_constraint(self):
+        self.constraints.append(UniqueConstraint(self.variables, self.size))
+
     # create unary constraints based on given data (self.data) and add to self.constraints
     def __generate_unary_constraints(self):
         for i in range(len(self.data)):
@@ -47,24 +51,13 @@ class BinaryPuzzle(Puzzle):
                                                         lambda assignment,
                                                         value=int(self.data[i]): assignment == value))
 
-    # create constraints that check if no 3x1 or 3x0 side by side (in rows and columns) and add to self.constraints
-    def __generate_three_not_identical_constraints(self):
-        for y in range(self.size):
-            self.constraints.append(ThreeNotIdenticalConstraint(self.variables[y * self.size: (y + 1) * self.size]))
-
-        for i in range(self.size):
-            column: list[VariablePosition] = []
-            for variable in self.variables:
-                if variable.column_number == i:
-                    column.append(variable)
-
-            self.constraints.append(ThreeNotIdenticalConstraint(column))
-
     # creates constraints that check if amounts of 0 and 1 are equal (in fully filled rows / columns)
     # and add to self.constraints
     def __generate_same_amount_zeros_as_ones_constraint(self):
         for y in range(self.size):
-            self.constraints.append(SameAmountZerosAsOnes(self.variables[y * self.size: (y + 1) * self.size]))
+            low_index = y * self.size
+            high_index = (y + 1) * self.size
+            self.constraints.append(SameAmountZerosAsOnes(self.variables[low_index: high_index]))
 
         for i in range(self.size):
             column: list[VariablePosition] = []
@@ -73,9 +66,20 @@ class BinaryPuzzle(Puzzle):
                     column.append(variable)
             self.constraints.append(SameAmountZerosAsOnes(column))
 
-    # creates constraints that check if columns are unique and rows are unique and add to self.constraints
-    def __generate_unique_cols_and_rows_constraint(self):
-        self.constraints.append(UniqueConstraint(self.variables, self.size))
+    # create constraints that check if no 3x1 or 3x0 side by side (in rows and columns) and add to self.constraints
+    def __generate_three_not_identical_constraints(self):
+        for y in range(self.size):
+            low_index = y * self.size
+            high_index = (y + 1) * self.size
+            self.constraints.append(ThreeNotIdenticalConstraint(self.variables[low_index: high_index]))
+
+        for i in range(self.size):
+            column: list[VariablePosition] = []
+            for variable in self.variables:
+                if variable.column_number == i:
+                    column.append(variable)
+
+            self.constraints.append(ThreeNotIdenticalConstraint(column))
 
     def __str__(self):
         return f'Binary puzzle - size: {self.size} data: {len(self.data)} domains: {self.domains}'

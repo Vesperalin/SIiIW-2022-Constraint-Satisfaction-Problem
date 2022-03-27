@@ -13,29 +13,37 @@ class Futoshiki_Puzzle(Puzzle):
     def __init__(self, size: int, data: str):
         super().__init__()
         # override values from parent
-        self.size: int = size
-        self.data: list[str] = (data + '-').split('\n')
         self.variables: list[VariablePosition] = []
         self.domains: Dict[VariablePosition, list[int]] = {}
-        self.constraints: list[Constraint[VariablePosition, list[Constraint]]] = []
+        self.constraints: list[Constraint] = []
+        self.size: int = size
+        self.data: list[str] = (data + '-').split('\n')
         # defining fields content
-        self.__transform_data()
+        self.__create_variables_and_domains()
         # generate constraints
         self.__generate_comparison_constraints()
         self.__generate_completeness_constraints()
 
     # transforms data from input and fills self.variables list
-    def __transform_data(self):
-        for y in list(filter(lambda e: e % 2 != 1, list(range(0, 2 * self.size - 1)))):
-            for x in range(len(self.data[y])):
-                if not self.data[y][x] == '>' and not self.data[y][x] == '<' and not self.data[y][x] == '-':
-                    variable = VariablePosition(y, x)
-                    self.variables.append(variable)
-                    self.domains[variable] = list(range(1, self.size + 1))
-                    if self.data[y][x] != 'x':
-                        self.constraints.append(UnaryConstraint(variable,
-                                                                lambda assignment,
-                                                                v=int(self.data[y][x]): assignment == v))
+    def __create_variables_and_domains(self):
+        amount_skipped_y = 0  # amount of lines with only signs
+        for y in range(2 * self.size - 1):
+            amount_skipped_x = 0  # amount of not numbers and 'x' in row
+            if y % 2 == 0:
+                for x in range(len(self.data[y])):
+                    if self.data[y][x] == '>' or self.data[y][x] == '<' or self.data[y][x] == '-':
+                        amount_skipped_x += 1
+                    else:
+                        new_y = y - amount_skipped_y
+                        new_x = x - amount_skipped_x
+                        variable = VariablePosition(new_y, new_x)
+                        self.variables.append(variable)
+                        self.domains[variable] = list(range(1, self.size + 1))
+                        if self.data[y][x] != 'x':
+                            self.constraints.append(UnaryConstraint(
+                                variable, lambda assignment, value=int(self.data[y][x]): assignment == value))
+            else:
+                amount_skipped_y += 1
 
     # helpers - finds VariablePosition object by coordinates
     def __find_variable_position(self, y, x):
@@ -44,27 +52,32 @@ class Futoshiki_Puzzle(Puzzle):
 
     # create comparison constraints based on data (self.data) and add to self.constraints
     def __generate_comparison_constraints(self):
+        amount_skipped_y = 0  # amount of lines with only signs
         for y in range(2 * self.size - 1):
+            amount_skipped_x = 0  # amount of numbers and 'x' in row
+            if y % 2 != 0:
+                amount_skipped_y += 1
+
             for x in range(len(self.data[y])):
                 if not self.data[y][x] == '>' and not self.data[y][x] == '<' and not self.data[y][x] == '-':
-                    pass
+                    amount_skipped_x += 1
                 elif y % 2 == 0:
                     if self.data[y][x] == '>':
-                        greater_position = self.__find_variable_position(y, x - 1)
-                        smaller_position = self.__find_variable_position(y, x + 1)
+                        greater_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
+                        smaller_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x + 1)
                         self.constraints.append(CompareConstraint(smaller_position, greater_position))
                     elif self.data[y][x] == '<':
-                        greater_position = self.__find_variable_position(y, x + 1)
-                        smaller_position = self.__find_variable_position(y, x - 1)
+                        greater_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x + 1)
+                        smaller_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
                         self.constraints.append(CompareConstraint(smaller_position, greater_position))
                 else:
                     if self.data[y][x] == '>':
-                        greater_position = self.__find_variable_position(y - 1, 2 * x)
-                        smaller_position = self.__find_variable_position(y + 1, 2 * x)
+                        greater_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
+                        smaller_position = self.__find_variable_position(y - amount_skipped_y + 1, x - amount_skipped_x)
                         self.constraints.append(CompareConstraint(smaller_position, greater_position))
                     elif self.data[y][x] == '<':
-                        greater_position = self.__find_variable_position(y + 1, 2 * x)
-                        smaller_position = self.__find_variable_position(y - 1, 2 * x)
+                        greater_position = self.__find_variable_position(y - amount_skipped_y + 1, x - amount_skipped_x)
+                        smaller_position = self.__find_variable_position(y - amount_skipped_y, x - amount_skipped_x)
                         self.constraints.append(CompareConstraint(smaller_position, greater_position))
 
     # create completeness constraints and add to self.constraints
@@ -72,14 +85,14 @@ class Futoshiki_Puzzle(Puzzle):
         for y in range(self.size):
             row_coords = []
             for x in range(self.size):
-                row_coords.append(self.__find_variable_position(2 * y, 2 * x))
+                row_coords.append(self.__find_variable_position(y, x))
 
             self.constraints.append(CompletenessConstraint(row_coords))
 
         for x in range(self.size):
             column_coords = []
             for y in range(self.size):
-                column_coords.append(self.__find_variable_position(2 * y, 2 * x))
+                column_coords.append(self.__find_variable_position(y, x))
 
             self.constraints.append(CompletenessConstraint(column_coords))
 

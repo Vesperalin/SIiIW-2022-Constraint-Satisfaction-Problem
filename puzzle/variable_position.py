@@ -5,4 +5,4 @@ class VariablePosition:
         self.column_number: int = column_number
 
     def __str__(self):
-        return 'Position - row: {}, column: {}'.format(self.row_number, self.column_number)
+        return 'VariablePosition - row: {}, column: {}'.format(self.row_number, self.column_number)
