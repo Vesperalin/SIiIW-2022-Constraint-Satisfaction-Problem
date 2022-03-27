@@ -40,8 +40,7 @@ class Futoshiki_Puzzle(Puzzle):
                         self.variables.append(variable)
                         self.domains[variable] = list(range(1, self.size + 1))
                         if self.data[y][x] != 'x':
-                            self.constraints.append(UnaryConstraint(
-                                variable, lambda assignment, value=int(self.data[y][x]): assignment == value))
+                            self.constraints.append(UnaryConstraint(variable, int(self.data[y][x])))
             else:
                 amount_skipped_y += 1
 

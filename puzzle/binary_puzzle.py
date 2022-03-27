@@ -47,9 +47,7 @@ class BinaryPuzzle(Puzzle):
     def __generate_unary_constraints(self):
         for i in range(len(self.data)):
             if self.data[i] != 'x':
-                self.constraints.append(UnaryConstraint(self.variables[i],
-                                                        lambda assignment,
-                                                        value=int(self.data[i]): assignment == value))
+                self.constraints.append(UnaryConstraint(self.variables[i], int(self.data[i])))
 
     # creates constraints that check if amounts of 0 and 1 are equal (in fully filled rows / columns)
     # and add to self.constraints
