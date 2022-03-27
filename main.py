@@ -21,10 +21,10 @@ def print_result(result, size):
 
 
 if __name__ == '__main__':
-    """data: str = read_data_from_file('binary_10x10')
-    puzzle: Puzzle = BinaryPuzzle(10, data)"""
-    data: str = read_data_from_file('futoshiki_6x6')
-    puzzle: Puzzle = Futoshiki_Puzzle(6, data)
+    """data: str = read_data_from_file('binary_6x6')
+    puzzle: Puzzle = BinaryPuzzle(6, data)"""
+    data: str = read_data_from_file('futoshiki_5x5')
+    puzzle: Puzzle = Futoshiki_Puzzle(5, data)
 
     csp = CSPBacktrackingSolver(puzzle)
     csp.backtracking_search({})
