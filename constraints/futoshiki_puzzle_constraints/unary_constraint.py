@@ -2,19 +2,20 @@ from typing import TypeVar, Dict, Callable, Tuple
 
 
 from constraints.constraint import Constraint
+from puzzle.variable_position import VariablePosition
 
 
 V = TypeVar('V')
 D = TypeVar('D')
 
 
-class UnaryConstraint(Constraint[Tuple[int, int], int]):
-    def __init__(self, value: int, predicate: Callable[[int], bool]):
+class UnaryConstraint(Constraint[VariablePosition, int]):
+    def __init__(self, value: VariablePosition, predicate: Callable[[int], bool]):
         super().__init__([value])
         self.value = value                   # value to obiekt klasy Position w binary
         self.predicate = predicate           # sprawdza, czy to co podane na wejściu jest zgodne
 
-    def satisfied(self, assignment: Dict[Tuple[int, int], int]):
+    def satisfied(self, assignment: Dict[VariablePosition, int]):
         if self.value not in assignment:
             return True
         else:

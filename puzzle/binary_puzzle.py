@@ -22,9 +22,9 @@ class BinaryPuzzle:
         self.__generate_unique_cols_and_rows_constraint()
 
     def __create_variables(self):
-        for row in range(0, self.rows):
-            for column in range(0, self.columns):
-                self.variables.append(VariablePosition(row, column))
+        for y in range(0, self.rows):
+            for x in range(0, self.columns):
+                self.variables.append(VariablePosition(y, x))
 
     def __create_domains_for_variables(self):
         for position in self.variables:
@@ -38,8 +38,8 @@ class BinaryPuzzle:
                     # lambda z parametrem assignment, sprawdza, czy podana liczba spełnia predykat
 
     def __generate_three_not_identical_constraints(self):
-        for row in range(self.rows):
-            self.constraints.append(ThreeNotIdenticalConstraint(self.variables[row * self.columns: (row + 1) * self.columns]))
+        for y in range(self.rows):
+            self.constraints.append(ThreeNotIdenticalConstraint(self.variables[y * self.columns: (y + 1) * self.columns]))
 
         for i in range(self.columns):
             column = []
@@ -50,8 +50,8 @@ class BinaryPuzzle:
             self.constraints.append(ThreeNotIdenticalConstraint(column))
 
     def __generate_same_amount_zeros_as_ones_constraint(self):
-        for row in range(self.rows):
-            self.constraints.append(SameAmountZerosAsOnes(self.variables[row * self.columns: (row + 1) * self.columns]))
+        for y in range(self.rows):
+            self.constraints.append(SameAmountZerosAsOnes(self.variables[y * self.columns: (y + 1) * self.columns]))
 
         for i in range(self.columns):
             column = []
