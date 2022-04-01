@@ -49,7 +49,7 @@ class CSPAC3Solver(Generic[V, D]):
     def ac3_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
-            # print(len(self.results))
+            print(len(self.results))
             self.results.append(assignment)
             return
 
@@ -65,8 +65,6 @@ class CSPAC3Solver(Generic[V, D]):
 
         for value_from_domain in domain:
             self.nodes += 1
-            # saved_domains = deepcopy(self.domains)  # czy jest sens przechowywać całość, czy tylko dla jednej zmiennej
-            # print(saved_domains)
             saved_domains: Dict[V, list[int]] = {}
             for key in self.domains.keys():
                 saved_domains[key] = deepcopy(self.domains[key])

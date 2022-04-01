@@ -94,8 +94,19 @@ if __name__ == '__main__':
         
         print('**********************************************************************************')"""
 
+    csp = CSPAC3Solver(puzzle_futoshiki_6)
+    csp.ac3_search({})
+    results = csp.results
 
-    for puzzle in futoshiki_puzzles:
+    if len(results) == 0:
+        print('Solutions not found')
+    else:
+        print('Found {} solutions for forward searching'.format(len(results)))
+        print("First result")
+        print_result(results[0], puzzle_futoshiki_6.size)
+        print("Visited nodes: " + str(csp.nodes))
+
+    """for puzzle in futoshiki_puzzles:
         csp = CSPBacktrackingSolver(puzzle)
         csp.backtracking_search({})
         results = csp.results
@@ -139,4 +150,4 @@ if __name__ == '__main__':
             print_result(results[0], puzzle.size)
             print("Visited nodes: " + str(csp.nodes))
 
-        print('**********************************************************************************')
+        print('**********************************************************************************')"""
