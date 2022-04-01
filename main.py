@@ -9,6 +9,7 @@ from solvers.CSP_ac3_solver import CSPAC3Solver
 from solvers.CSP_forward_checking import CSPForwardCheckingSolver
 
 # TODO merge CSP backtracking solver and forward checking solver and ac3
+# TODO zoptymalizować deepcopy domen
 # TODO add heuristics for variable
 # TODO add heuristic for value
 # TODO improve ac3 and FC speed
@@ -96,13 +97,13 @@ if __name__ == '__main__':
     csp.ac3_search({})
     results = csp.results"""
 
-    csp = CSPForwardCheckingSolver(puzzle_futoshiki_6)
-    csp.forward_checking_search({})
-    results = csp.results
-
-    """csp = CSPBacktrackingSolver(puzzle_futoshiki_6)
-    csp.backtracking_search({})
+    """csp = CSPForwardCheckingSolver(puzzle_futoshiki_6)
+    csp.forward_checking()
     results = csp.results"""
+
+    csp = CSPBacktrackingSolver(puzzle_futoshiki_6)
+    csp.backtracking_search({})
+    results = csp.results
 
     if len(results) == 0:
         print('Solutions not found')

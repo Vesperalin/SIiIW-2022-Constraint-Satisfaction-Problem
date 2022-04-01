@@ -2,6 +2,7 @@ from typing import Generic, TypeVar, Dict
 from copy import deepcopy
 
 from constraints.constraint import Constraint
+from constraints.unary_constraint import UnaryConstraint
 from puzzle.puzzle import Puzzle
 
 
@@ -19,6 +20,7 @@ class CSPForwardCheckingSolver(Generic[V, D]):
         self.constraints: Dict[V, list[Constraint[V, D]]] = {}  # dictionary for list of constraints for all variables
         self.results: list[Dict[V, D]] = []
         self.nodes: int = 0
+        self.unary_constraints: list[V] = []
 
         for variable in self.variables:
             self.constraints[variable] = []
@@ -27,6 +29,8 @@ class CSPForwardCheckingSolver(Generic[V, D]):
 
         for constraint in puzzle.constraints:
             self.__add_constraint(constraint)
+            if type(constraint) is UnaryConstraint:
+                self.unary_constraints.append(constraint)
 
     # goes through all the variables touched by a given constraint and adds itself to the constraints mapping
     # for each of them.
@@ -122,7 +126,15 @@ class CSPForwardCheckingSolver(Generic[V, D]):
                     # self.domains = saved_domains
                     self.forward_checking_search(temp_assignment)"""
 
-    def forward_checking_search(self, assignment: Dict[V, D]):
+    def forward_checking(self):
+        assignment: Dict[V, D] = {}
+        for constraint in self.puzzle.constraints:
+            if type(constraint) is UnaryConstraint:
+                assignment[constraint.variables[0]] = constraint.value
+
+        self.__forward_checking_search(assignment)
+
+    def __forward_checking_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
             print(len(self.results))
@@ -158,12 +170,22 @@ class CSPForwardCheckingSolver(Generic[V, D]):
                         if var != first and var not in temp_assignment:
                             local_variables.add(var)
 
+                """print("####################################################################")
+                print("First ", end="")
+                print(first, end=" ")
+                print(temp_assignment[first])"""
+
+
                 for var in local_variables:
-                    # get constraints where [var] and [first] are together
+                    """print(var)
+                    print(self.domains[var])
+                    # get constraints where [var] and [first] are together"""
                     constraints_to_check = []
                     for const in all_constraints:
                         if var in const.variables and first in const.variables:
                             constraints_to_check.append(const)
+
+                    constraints_to_check.extend(self.unary_constraints)
 
                     for value in saved_domains[var]:
                         local_copy_assignment = temp_assignment.copy()
@@ -172,6 +194,10 @@ class CSPForwardCheckingSolver(Generic[V, D]):
                                                                                     constraints_to_check)
                         if not if_satisfied_forward:
                             self.domains[var].remove(value)
+
+                    """print(self.domains[var])
+
+                    print("********************")"""
 
                     # jeżeli self.domains dla var pusta to powrót, a jak nie to wychodze z 2xfor
                     if len(self.domains[var]) == 0:
@@ -184,8 +210,9 @@ class CSPForwardCheckingSolver(Generic[V, D]):
                     if len(self.domains[key]) == 0:
                         if_domains_empty = True
 
-                self.domains = saved_domains
+
 
                 if not if_domains_empty:
                     # self.domains = saved_domains
-                    self.forward_checking_search(temp_assignment)
+                    self.__forward_checking_search(temp_assignment)
+                self.domains = saved_domains

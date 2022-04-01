@@ -47,6 +47,7 @@ class CSPBacktrackingSolver(Generic[V, D]):
     def backtracking_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
+            print(len(self.results))
             self.results.append(assignment)
             return
 
