@@ -3,6 +3,13 @@ from puzzle.binary_puzzle import BinaryPuzzle
 from puzzle.puzzle import Puzzle
 from puzzle.futoshiki_puzzle import Futoshiki_Puzzle
 from solvers.CSP_backtracking_solver import CSPBacktrackingSolver
+from solvers.CSP_ac3_solver import CSPAC3Solver
+
+# TODO implement easy forward checking
+# TODO merge CSP backtracking solver and forward checking solver and ac3
+# TODO add heuristics for variable
+# TODO add heuristic for value
+# TODO improve ac3 speed
 
 
 def print_result(result, size):
@@ -23,11 +30,15 @@ def print_result(result, size):
 if __name__ == '__main__':
     """data: str = read_data_from_file('binary_6x6')
     puzzle: Puzzle = BinaryPuzzle(6, data)"""
-    data: str = read_data_from_file('futoshiki_4x4')
-    puzzle: Puzzle = Futoshiki_Puzzle(4, data)
+    data: str = read_data_from_file('futoshiki_6x6')
+    puzzle: Puzzle = Futoshiki_Puzzle(6, data)
 
-    csp = CSPBacktrackingSolver(puzzle)
+    """csp = CSPBacktrackingSolver(puzzle)
     csp.backtracking_search({})
+    results = csp.results"""
+
+    csp = CSPAC3Solver(puzzle)
+    csp.forward_checking_search({})
     results = csp.results
 
     if len(results) == 0:
