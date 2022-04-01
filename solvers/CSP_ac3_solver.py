@@ -19,7 +19,6 @@ class CSPAC3Solver(Generic[V, D]):
         self.constraints: Dict[V, list[Constraint[V, D]]] = {}  # dictionary for list of constraints for all variables
         self.results: list[Dict[V, D]] = []
         self.nodes: int = 0
-        self.returns: int = 0
 
         for variable in self.variables:
             self.constraints[variable] = []
@@ -50,7 +49,7 @@ class CSPAC3Solver(Generic[V, D]):
     def ac3_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
-            print(len(self.results))
+            # print(len(self.results))
             self.results.append(assignment)
             return
 
@@ -108,6 +107,3 @@ class CSPAC3Solver(Generic[V, D]):
                 if not if_domains_empty:
                     # self.domains = saved_domains
                     self.ac3_search(temp_assignment)
-
-            self.returns += 1
-

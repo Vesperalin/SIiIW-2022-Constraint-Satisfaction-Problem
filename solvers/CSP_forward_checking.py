@@ -19,7 +19,6 @@ class CSPForwardCheckingSolver(Generic[V, D]):
         self.constraints: Dict[V, list[Constraint[V, D]]] = {}  # dictionary for list of constraints for all variables
         self.results: list[Dict[V, D]] = []
         self.nodes: int = 0
-        self.returns: int = 0
 
         for variable in self.variables:
             self.constraints[variable] = []
@@ -43,6 +42,12 @@ class CSPForwardCheckingSolver(Generic[V, D]):
     # assignment in my implementation: {key: VariablePosition, value: int (value at the position)}
     def consistent(self, variable: V, assignment: Dict[V, D]):
         for constraint in self.constraints[variable]:
+            if not constraint.satisfied(assignment):
+                return False
+        return True
+
+    def if_consistent_for_two_variables(self, assignment: Dict[V, D], constraints: list[Constraint[V, D]]):
+        for constraint in constraints:
             if not constraint.satisfied(assignment):
                 return False
         return True
@@ -79,16 +84,23 @@ class CSPForwardCheckingSolver(Generic[V, D]):
                 all_constraints = self.constraints[first]
                 local_variables = set()
 
+                # get all constraints where [first] VariablePosition included
                 for const in all_constraints:
                     for var in const.variables:
                         if var != first:
                             local_variables.add(var)
 
                 for var in local_variables:
+                    # get constraints where [var] and [first] are together
+                    constraints_to_check = []
+                    for const in all_constraints:
+                        if var in const.variables and first in const.variables:
+                            constraints_to_check.append(const)
+
                     for value in saved_domains[var]:
                         local_copy_assignment = temp_assignment.copy()
                         local_copy_assignment[var] = value
-                        if_satisfied_forward = self.consistent(var, local_copy_assignment)
+                        if_satisfied_forward = self.if_consistent_for_two_variables(local_copy_assignment, constraints_to_check)
                         if not if_satisfied_forward:  # domany wywalić??? z self.domains
                             self.domains[var].remove(value)
 
@@ -108,6 +120,3 @@ class CSPForwardCheckingSolver(Generic[V, D]):
                 if not if_domains_empty:
                     # self.domains = saved_domains
                     self.forward_checking_search(temp_assignment)
-
-            self.returns += 1
-
