@@ -11,7 +11,7 @@ D = TypeVar('D')
 
 # V will be VariableConstraint and D int
 # class represents CSP solver with backtracking
-class CSPAC3Solver(Generic[V, D]):
+class CSPForwardCheckingSolver(Generic[V, D]):
     def __init__(self, puzzle: Puzzle):
         self.puzzle = puzzle
         self.variables: list[V] = puzzle.variables  # variables to be constrained
@@ -47,10 +47,10 @@ class CSPAC3Solver(Generic[V, D]):
                 return False
         return True
 
-    def ac3_search(self, assignment: Dict[V, D]):
+    def forward_checking_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
-            print(len(self.results))
+            # print(len(self.results))
             self.results.append(assignment)
             return
 
@@ -107,7 +107,7 @@ class CSPAC3Solver(Generic[V, D]):
 
                 if not if_domains_empty:
                     # self.domains = saved_domains
-                    self.ac3_search(temp_assignment)
+                    self.forward_checking_search(temp_assignment)
 
             self.returns += 1
 
