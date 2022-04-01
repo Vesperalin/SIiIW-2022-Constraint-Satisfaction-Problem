@@ -16,6 +16,7 @@ class CSPBacktrackingSolver(Generic[V, D]):
         self.domains: Dict[V, list[D]] = puzzle.domains  # domain of each variable
         self.constraints: Dict[V, list[Constraint[V, D]]] = {}  # dictionary for list of constraints for all variables
         self.results: list[Dict[V, D]] = []
+        self.nodes: int = 0
 
         for variable in self.variables:
             self.constraints[variable] = []
@@ -58,8 +59,8 @@ class CSPBacktrackingSolver(Generic[V, D]):
 
         first: V = unassigned[0]
         for value_from_domain in self.domains[first]:
+            self.nodes += 1
             temp_assignment = assignment.copy()
             temp_assignment[first] = value_from_domain
-
             if self.consistent(first, temp_assignment):
                 self.backtracking_search(temp_assignment)

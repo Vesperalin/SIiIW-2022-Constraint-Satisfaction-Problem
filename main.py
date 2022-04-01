@@ -23,8 +23,8 @@ def print_result(result, size):
 if __name__ == '__main__':
     """data: str = read_data_from_file('binary_6x6')
     puzzle: Puzzle = BinaryPuzzle(6, data)"""
-    data: str = read_data_from_file('futoshiki_5x5')
-    puzzle: Puzzle = Futoshiki_Puzzle(5, data)
+    data: str = read_data_from_file('futoshiki_4x4')
+    puzzle: Puzzle = Futoshiki_Puzzle(4, data)
 
     csp = CSPBacktrackingSolver(puzzle)
     csp.backtracking_search({})
@@ -37,5 +37,7 @@ if __name__ == '__main__':
         print("First result")
         if type(puzzle) == BinaryPuzzle:
             print_result(results[0], puzzle.size)
+            print("Visited nodes: " + str(csp.nodes))
         else:
             print_result(results[0], puzzle.size)
+            print("Visited nodes: " + str(csp.nodes))
