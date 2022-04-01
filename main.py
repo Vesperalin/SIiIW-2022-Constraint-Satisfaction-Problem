@@ -8,12 +8,10 @@ from solvers.CSP_backtracking_solver import CSPBacktrackingSolver
 from solvers.CSP_ac3_solver import CSPAC3Solver
 from solvers.CSP_forward_checking import CSPForwardCheckingSolver
 
-# TODO implement easy forward checking
-# TODO add returns counter in backtracking
 # TODO merge CSP backtracking solver and forward checking solver and ac3
 # TODO add heuristics for variable
 # TODO add heuristic for value
-# TODO improve ac3 speed
+# TODO improve ac3 and FC speed
 
 
 def print_result(result, size):
@@ -94,9 +92,17 @@ if __name__ == '__main__':
         
         print('**********************************************************************************')"""
 
-    csp = CSPAC3Solver(puzzle_futoshiki_6)
+    """csp = CSPAC3Solver(puzzle_futoshiki_6)
     csp.ac3_search({})
+    results = csp.results"""
+
+    csp = CSPForwardCheckingSolver(puzzle_futoshiki_6)
+    csp.forward_checking_search({})
     results = csp.results
+
+    """csp = CSPBacktrackingSolver(puzzle_futoshiki_6)
+    csp.backtracking_search({})
+    results = csp.results"""
 
     if len(results) == 0:
         print('Solutions not found')

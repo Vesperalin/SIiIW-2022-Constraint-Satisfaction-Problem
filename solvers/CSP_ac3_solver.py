@@ -65,28 +65,30 @@ class CSPAC3Solver(Generic[V, D]):
 
         for value_from_domain in domain:
             self.nodes += 1
-            saved_domains: Dict[V, list[int]] = {}
-            for key in self.domains.keys():
-                saved_domains[key] = deepcopy(self.domains[key])
-
             temp_assignment = assignment.copy()
             temp_assignment[first] = value_from_domain
 
             if self.consistent(first, temp_assignment):
+                saved_domains: Dict[V, list[int]] = {}
+                for key in self.domains.keys():
+                    saved_domains[key] = deepcopy(self.domains[key])
+
                 all_constraints = self.constraints[first]
                 local_variables = set()
 
+                # get all EMPTY variables where [first] VariablePosition included in same constraints
                 for const in all_constraints:
                     for var in const.variables:
-                        if var != first:
+                        if var != first and var not in temp_assignment:
                             local_variables.add(var)
 
                 for var in local_variables:
+                    # get constraints where [var] and [first] are together
                     for value in saved_domains[var]:
                         local_copy_assignment = temp_assignment.copy()
                         local_copy_assignment[var] = value
                         if_satisfied_forward = self.consistent(var, local_copy_assignment)
-                        if not if_satisfied_forward:  # domany wywalić??? z self.domains
+                        if not if_satisfied_forward:
                             self.domains[var].remove(value)
 
                     # jeżeli self.domains dla var pusta to powrót, a jak nie to wychodze z 2xfor
