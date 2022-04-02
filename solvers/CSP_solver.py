@@ -32,7 +32,7 @@ class CSPSolver(Generic[V, D]):
 
         for constraint in puzzle.constraints:
             self.__add_constraint(constraint)
-            if self.solving_mode == 'FC':
+            if self.solving_mode == 'FC' or self.solving_mode == 'LA':
                 if type(constraint) is UnaryConstraint:
                     self.unary_constraints.append(constraint)
 
@@ -71,6 +71,14 @@ class CSPSolver(Generic[V, D]):
         elif self.solving_mode == 'LA':
             self.__look_ahead()
 
+    def __get_variables_by_heuristic(self, assignment: Dict[V, D]):
+        if self.variable_heuristic == 'CON':
+            return self.__get_consecutive_variable_heuristic(assignment)
+        elif self.variable_heuristic == 'MRV':
+            return self.__get_mrv_variable_heuristic(assignment)
+        elif self.variable_heuristic == 'RND':
+            return self.__get_random_variable_heuristic(assignment)
+
     # get all variables that are not assigned a value - consecutive not empty variables
     def __get_consecutive_variable_heuristic(self, assignment: Dict[V, D]):
         unassigned: list[V] = []
@@ -99,6 +107,7 @@ class CSPSolver(Generic[V, D]):
         shuffle(unassigned)
         return unassigned
 
+##################################################################################################################
     # backtracking solver
     def __backtracking_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
@@ -107,13 +116,7 @@ class CSPSolver(Generic[V, D]):
             self.results.append(assignment)
             return
 
-        unassigned: list[V] = []
-        if self.variable_heuristic == 'CON':
-            unassigned: list[V] = self.__get_consecutive_variable_heuristic(assignment)
-        elif self.variable_heuristic == 'MRV':
-            unassigned: list[V] = self.__get_mrv_variable_heuristic(assignment)
-        elif self.variable_heuristic == 'RND':
-            unassigned: list[V] = self.__get_random_variable_heuristic(assignment)
+        unassigned: list[V] = self.__get_variables_by_heuristic(assignment)
 
         first: V = unassigned[0]
         for value_from_domain in self.domains[first]:
@@ -123,6 +126,7 @@ class CSPSolver(Generic[V, D]):
             if self.consistent(first, temp_assignment):
                 self.__backtracking_search(temp_assignment)
 
+##################################################################################################################
     # forward checking solver
     def __forward_checking(self):
         assignment: Dict[V, D] = {}
@@ -141,13 +145,7 @@ class CSPSolver(Generic[V, D]):
             self.results.append(assignment)
             return
 
-        unassigned: list[V] = []
-        if self.variable_heuristic == 'CON':
-            unassigned: list[V] = self.__get_consecutive_variable_heuristic(assignment)
-        elif self.variable_heuristic == 'MRV':
-            unassigned: list[V] = self.__get_mrv_variable_heuristic(assignment)
-        elif self.variable_heuristic == 'RND':
-            unassigned: list[V] = self.__get_random_variable_heuristic(assignment)
+        unassigned: list[V] = self.__get_variables_by_heuristic(assignment)
 
         first: V = unassigned[0]
         domain = self.domains[first]
@@ -204,6 +202,7 @@ class CSPSolver(Generic[V, D]):
                 for key in local_variables:
                     self.domains[key] = saved_domains[key]
 
+##################################################################################################################
     # look ahead solver
     def __look_ahead(self):
         assignment: Dict[V, D] = {}
