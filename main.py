@@ -7,10 +7,11 @@ from puzzle.futoshiki_puzzle import Futoshiki_Puzzle
 from solvers.CSP_backtracking_solver import CSPBacktrackingSolver
 from solvers.CSP_ac3_solver import CSPAC3Solver
 from solvers.CSP_forward_checking import CSPForwardCheckingSolver
+from solvers.CSP_solver import CSPSolver
 
 
 # TODO imporve look ahead (add unary constraints, improve domains) and J.K. idea
-# TODO merge CSP backtracking solver and forward checking solver and c
+# TODO delete CSP_backtrackin_solver and CSP_forward_checking - they are in CSP_Solver
 # TODO add heuristics for variable
 # TODO add heuristic for value
 # TODO delete print when adding to results in csp
@@ -52,53 +53,13 @@ if __name__ == '__main__':
 
     binary_puzzles = [puzzle_binary_6, puzzle_binary_8, puzzle_binary_10]
     futoshiki_puzzles = [puzzle_futoshiki_4, puzzle_futoshiki_5, puzzle_futoshiki_6]
-
-    """for puzzle in binary_puzzles:
-        csp = CSPBacktrackingSolver(puzzle)
-        csp.backtracking_search({})
-        results = csp.results
-
-        print("Binray {}x{}".format(puzzle.size, puzzle.size))
-
-        if len(results) == 0:
-            print('Solutions not found')
-        else:
-            print('Found {} solutions for baktracking'.format(len(results)))
-            print("First result")
-            print_result(results[0], puzzle.size)
-            print("Visited nodes: " + str(csp.nodes))
-
-        csp = CSPForwardCheckingSolver(puzzle)
-        csp.forward_checking()
-        results = csp.results
-
-        if len(results) == 0:
-            print('Solutions not found')
-        else:
-            print('Found {} solutions for forward searching'.format(len(results)))
-            print("First result")
-            print_result(results[0], puzzle.size)
-            print("Visited nodes: " + str(csp.nodes))
-
-        # csp = CSPAC3Solver(puzzle)
-        # csp.ac3_search({})
-        # results = csp.results
-        #
-        # if len(results) == 0:
-        #     print('Solutions not found')
-        # else:
-        #     print('Found {} solutions fo ac3'.format(len(results)))
-        #     print("First result")
-        #     print_result(results[0], puzzle.size)
-        #     print("Visited nodes: " + str(csp.nodes))
-        
-        print('**********************************************************************************')"""
+    modes = ['BT', 'FC']
 
     """csp = CSPAC3Solver(puzzle_futoshiki_6)
-    csp.ac3_search({})
-    results = csp.results"""
+        csp.ac3_search({})
+        results = csp.results"""
 
-    """csp = CSPForwardCheckingSolver(puzzle_futoshiki_6)
+    """csp = CSPForwardCheckingSolver(puzzle_binary_6)
     csp.forward_checking()
     results = csp.results"""
 
@@ -111,51 +72,42 @@ if __name__ == '__main__':
     else:
         print('Found {} solutions for forward searching'.format(len(results)))
         print("First result")
-        print_result(results[0], puzzle_futoshiki_6.size)
+        print_result(results[0], puzzle_binary_6.size)
         print("Visited nodes: " + str(csp.nodes))"""
 
+
+
+
+    """for puzzle in binary_puzzles:
+        for mode in modes:
+            csp = CSPSolver(puzzle, mode)
+            csp.solve()
+            results = csp.results
+
+            print("Binray {}x{}".format(puzzle.size, puzzle.size))
+
+            if len(results) == 0:
+                print('Solutions not found')
+            else:
+                print('Found {} solutions for {}'.format(len(results), mode))
+                print("First result")
+                print_result(results[0], puzzle.size)
+                print("Visited nodes: " + str(csp.nodes))
+        print('**********************************************************************************')"""
+
     """for puzzle in futoshiki_puzzles:
-        csp = CSPBacktrackingSolver(puzzle)
-        csp.backtracking_search({})
-        results = csp.results
+        for mode in modes:
+            csp = CSPSolver(puzzle, mode)
+            csp.solve()
+            results = csp.results
 
-        print("Futoshiki {}x{}".format(puzzle.size, puzzle.size))
+            print("Futoshiki {}x{}".format(puzzle.size, puzzle.size))
 
-        if len(results) == 0:
-            print('Solutions not found')
-        else:
-            print('Found {} solutions for baktracking'.format(len(results)))
-            print("First result")
-            print_result(results[0], puzzle.size)
-            print("Visited nodes: " + str(csp.nodes))
-
-        original_domains = {}
-        for key in puzzle.domains.keys():
-            original_domains[key] = deepcopy(puzzle.domains[key])
-
-        csp = CSPForwardCheckingSolver(puzzle)
-        csp.forward_checking()
-        results = csp.results
-
-        if len(results) == 0:
-            print('Solutions not found')
-        else:
-            print('Found {} solutions for forward searching'.format(len(results)))
-            print("First result")
-            print_result(results[0], puzzle.size)
-            print("Visited nodes: " + str(csp.nodes))
-
-        # puzzle.domains = original_domains
-        # csp = CSPAC3Solver(puzzle)
-        # csp.ac3_search({})
-        # results = csp.results
-        #
-        # if len(results) == 0:
-        #     print('Solutions not found')
-        # else:
-        #     print('Found {} solutions fo ac3'.format(len(results)))
-        #     print("First result")
-        #     print_result(results[0], puzzle.size)
-        #     print("Visited nodes: " + str(csp.nodes))
-
+            if len(results) == 0:
+                print('Solutions not found')
+            else:
+                print('Found {} solutions for {}'.format(len(results), mode))
+                print("First result")
+                print_result(results[0], puzzle.size)
+                print("Visited nodes: " + str(csp.nodes))
         print('**********************************************************************************')"""
