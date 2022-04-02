@@ -1,5 +1,6 @@
 from typing import Generic, TypeVar, Dict
 from copy import deepcopy
+from random import shuffle
 
 from constraints.constraint import Constraint
 from constraints.unary_constraint import UnaryConstraint
@@ -13,7 +14,7 @@ D = TypeVar('D')
 # V will be VariableConstraint and D int
 # class represents CSP solver with backtracking, forward checking ....................
 class CSPSolver(Generic[V, D]):
-    def __init__(self, puzzle: Puzzle, solving_mode: str):
+    def __init__(self, puzzle: Puzzle, solving_mode: str, variable_heuristic: str):
         self.puzzle = puzzle
         self.variables: list[V] = puzzle.variables  # variables to be constrained
         self.domains: Dict[V, list[D]] = puzzle.domains  # domain of each variable
@@ -21,6 +22,7 @@ class CSPSolver(Generic[V, D]):
         self.results: list[Dict[V, D]] = []
         self.nodes: int = 0
         self.solving_mode: str = solving_mode  # BT, FC
+        self.variable_heuristic: str = variable_heuristic  # CON (consecutive), MRV (Minimum Remaining Values)
         self.unary_constraints: list[V] = []
 
         for variable in self.variables:
@@ -66,21 +68,52 @@ class CSPSolver(Generic[V, D]):
             self.__backtracking_search({})
         elif self.solving_mode == 'FC':
             self.__forward_checking()
+        elif self.solving_mode == 'LA':
+            self.__look_ahead()
+
+    # get all variables that are not assigned a value - consecutive not empty variables
+    def __get_consecutive_variable_heuristic(self, assignment: Dict[V, D]):
+        unassigned: list[V] = []
+        for v in self.variables:
+            if v not in assignment:
+                unassigned.append(v)
+        return unassigned
+
+    # get all variables that are not assigned a value - Minimum Remaining Values heuristic
+    def __get_mrv_variable_heuristic(self, assignment: Dict[V, D]):
+        unassigned: list[V] = []
+        for v in self.variables:
+            if v not in assignment:
+                unassigned.append(v)
+
+        unassigned = sorted(unassigned, key=lambda x: len(self.domains[x]))
+        return unassigned
+
+    # get all variables that are not assigned a value - Minimum Remaining Values heuristic
+    def __get_random_variable_heuristic(self, assignment: Dict[V, D]):
+        unassigned: list[V] = []
+        for v in self.variables:
+            if v not in assignment:
+                unassigned.append(v)
+
+        shuffle(unassigned)
+        return unassigned
 
     # backtracking solver
     def __backtracking_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
-            print(len(self.results))
+            # print(len(self.results))
             self.results.append(assignment)
             return
 
         unassigned: list[V] = []
-
-        # get all variables that are not assigned a value
-        for v in self.variables:
-            if v not in assignment:
-                unassigned.append(v)
+        if self.variable_heuristic == 'CON':
+            unassigned: list[V] = self.__get_consecutive_variable_heuristic(assignment)
+        elif self.variable_heuristic == 'MRV':
+            unassigned: list[V] = self.__get_mrv_variable_heuristic(assignment)
+        elif self.variable_heuristic == 'RND':
+            unassigned: list[V] = self.__get_random_variable_heuristic(assignment)
 
         first: V = unassigned[0]
         for value_from_domain in self.domains[first]:
@@ -104,20 +137,20 @@ class CSPSolver(Generic[V, D]):
     def __forward_checking_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
-            print(len(self.results))
+            #print(len(self.results))
             self.results.append(assignment)
             return
 
         unassigned: list[V] = []
-
-        # get all variables that are not assigned a value
-        for v in self.variables:
-            if v not in assignment:
-                unassigned.append(v)
+        if self.variable_heuristic == 'CON':
+            unassigned: list[V] = self.__get_consecutive_variable_heuristic(assignment)
+        elif self.variable_heuristic == 'MRV':
+            unassigned: list[V] = self.__get_mrv_variable_heuristic(assignment)
+        elif self.variable_heuristic == 'RND':
+            unassigned: list[V] = self.__get_random_variable_heuristic(assignment)
 
         first: V = unassigned[0]
         domain = self.domains[first]
-
         for value_from_domain in domain:
             self.nodes += 1
             temp_assignment = assignment.copy()
@@ -166,6 +199,80 @@ class CSPSolver(Generic[V, D]):
 
                 if not if_domains_empty:
                     self.__forward_checking_search(temp_assignment)
+
+                # restore domains
+                for key in local_variables:
+                    self.domains[key] = saved_domains[key]
+
+    # look ahead solver
+    def __look_ahead(self):
+        assignment: Dict[V, D] = {}
+        for constraint in self.puzzle.constraints:
+            # assign unary constraints
+            if type(constraint) is UnaryConstraint:
+                assignment[constraint.variables[0]] = constraint.value
+
+        self.__look_ahead_search(assignment)
+
+    # look ahead solver helper
+    def __look_ahead_search(self, assignment: Dict[V, D]):
+        # if every variable has assigned value
+        if len(assignment) == len(self.variables):
+            #print(len(self.results))
+            self.results.append(assignment)
+            return
+
+        unassigned: list[V] = []
+        if self.variable_heuristic == 'CON':
+            unassigned: list[V] = self.__get_consecutive_variable_heuristic(assignment)
+
+        first: V = unassigned[0]
+        domain = self.domains[first]
+        for value_from_domain in domain:
+            self.nodes += 1
+            temp_assignment = assignment.copy()
+            temp_assignment[first] = value_from_domain
+
+            if self.consistent(first, temp_assignment):
+                all_constraints = self.constraints[first]
+                local_variables = []
+
+                # get all EMPTY variables where [first] VariablePosition included in same constraints as var
+                for const in all_constraints:
+                    for var in const.variables:
+                        if var != first and var not in temp_assignment and var not in local_variables:
+                            local_variables.append(var)
+
+                saved_domains: Dict[V, list[int]] = {}
+                for key in local_variables:
+                    saved_domains[key] = deepcopy(self.domains[key])
+
+                # flag for turn back
+                if_domains_empty = False
+                for var in local_variables:
+                    if not if_domains_empty:
+                        # add unary constraints
+                        #constraints_to_check.extend(self.unary_constraints)
+
+                        # check values from domain
+                        for value in saved_domains[var]:
+                            local_copy_assignment = temp_assignment.copy()
+                            local_copy_assignment[var] = value
+                            if_satisfied_forward = self.consistent(var, local_copy_assignment)
+                            if not if_satisfied_forward:
+                                self.domains[var].remove(value)
+
+                        # if domain empty - start to turn back
+                        if len(self.domains[var]) == 0:
+                            if_domains_empty = True
+                            #break
+                        elif len(self.domains[var]) == 1:
+                            local_copy_assignment = temp_assignment.copy()
+                            local_copy_assignment[var] = self.domains[var][0]
+                            self.__look_ahead_search(local_copy_assignment)
+
+                if not if_domains_empty:
+                    self.__look_ahead_search(temp_assignment)
 
                 # restore domains
                 for key in local_variables:
