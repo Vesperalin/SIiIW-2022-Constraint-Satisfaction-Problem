@@ -76,8 +76,6 @@ class CSPSolver(Generic[V, D]):
             return self.__get_consecutive_variable_heuristic(assignment)
         elif self.variable_heuristic == 'MRV':
             return self.__get_mrv_variable_heuristic(assignment)
-        elif self.variable_heuristic == 'RND':
-            return self.__get_random_variable_heuristic(assignment)
 
     # get all variables that are not assigned a value - consecutive not empty variables
     def __get_consecutive_variable_heuristic(self, assignment: Dict[V, D]):
@@ -95,16 +93,6 @@ class CSPSolver(Generic[V, D]):
                 unassigned.append(v)
 
         unassigned = sorted(unassigned, key=lambda x: len(self.domains[x]))
-        return unassigned
-
-    # get all variables that are not assigned a value - Minimum Remaining Values heuristic
-    def __get_random_variable_heuristic(self, assignment: Dict[V, D]):
-        unassigned: list[V] = []
-        for v in self.variables:
-            if v not in assignment:
-                unassigned.append(v)
-
-        shuffle(unassigned)
         return unassigned
 
 ##################################################################################################################

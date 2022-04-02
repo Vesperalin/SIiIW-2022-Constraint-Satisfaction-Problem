@@ -54,7 +54,7 @@ if __name__ == '__main__':
     futoshiki_puzzles = [puzzle_futoshiki_4, puzzle_futoshiki_5, puzzle_futoshiki_6]
 
     algo_modes = ['BT', 'FC']  # 'LA'
-    variable_heuristics = ['CON', 'MRV', 'RND']
+    variable_heuristics = ['CON', 'MRV']
 
     """csp = CSPAC3Solver(puzzle_futoshiki_6)
         csp.ac3_search({})
@@ -76,6 +76,19 @@ if __name__ == '__main__':
         print_result(results[0], puzzle_binary_6.size)
         print("Visited nodes: " + str(csp.nodes))"""
 
+    """csp = CSPSolver(puzzle_binary_10, 'BT', 'RND')
+    csp.solve()
+    results = csp.results
+
+    print("Binray {}x{}".format(puzzle_binary_10.size, puzzle_binary_10.size))
+
+    if len(results) == 0:
+        print('Solutions not found')
+    else:
+        print('Found {} solutions for {}, {}'.format(len(results), 'BT', 'RND'))
+        print("First result")
+        print_result(results[0], puzzle_binary_10.size)
+        print("Visited nodes: " + str(csp.nodes))"""
 
 
     """for puzzle in binary_puzzles:
