@@ -8,11 +8,12 @@ from solvers.CSP_backtracking_solver import CSPBacktrackingSolver
 from solvers.CSP_ac3_solver import CSPAC3Solver
 from solvers.CSP_forward_checking import CSPForwardCheckingSolver
 
-# TODO merge CSP backtracking solver and forward checking solver and ac3
-# TODO zoptymalizować deepcopy domen
+
+# TODO imporve look ahead (add unary constraints, improve domains) and J.K. idea
+# TODO merge CSP backtracking solver and forward checking solver and c
 # TODO add heuristics for variable
 # TODO add heuristic for value
-# TODO improve ac3 and FC speed
+# TODO delete print when adding to results in csp
 
 
 def print_result(result, size):
@@ -68,7 +69,7 @@ if __name__ == '__main__':
             print("Visited nodes: " + str(csp.nodes))
 
         csp = CSPForwardCheckingSolver(puzzle)
-        csp.forward_checking_search({})
+        csp.forward_checking()
         results = csp.results
 
         if len(results) == 0:
@@ -79,17 +80,17 @@ if __name__ == '__main__':
             print_result(results[0], puzzle.size)
             print("Visited nodes: " + str(csp.nodes))
 
-        csp = CSPAC3Solver(puzzle)
-        csp.ac3_search({})
-        results = csp.results
-
-        if len(results) == 0:
-            print('Solutions not found')
-        else:
-            print('Found {} solutions fo ac3'.format(len(results)))
-            print("First result")
-            print_result(results[0], puzzle.size)
-            print("Visited nodes: " + str(csp.nodes))
+        # csp = CSPAC3Solver(puzzle)
+        # csp.ac3_search({})
+        # results = csp.results
+        #
+        # if len(results) == 0:
+        #     print('Solutions not found')
+        # else:
+        #     print('Found {} solutions fo ac3'.format(len(results)))
+        #     print("First result")
+        #     print_result(results[0], puzzle.size)
+        #     print("Visited nodes: " + str(csp.nodes))
         
         print('**********************************************************************************')"""
 
@@ -101,17 +102,17 @@ if __name__ == '__main__':
     csp.forward_checking()
     results = csp.results"""
 
-    csp = CSPBacktrackingSolver(puzzle_futoshiki_6)
+    """csp = CSPBacktrackingSolver(puzzle_futoshiki_6)
     csp.backtracking_search({})
-    results = csp.results
+    results = csp.results"""
 
-    if len(results) == 0:
+    """if len(results) == 0:
         print('Solutions not found')
     else:
         print('Found {} solutions for forward searching'.format(len(results)))
         print("First result")
         print_result(results[0], puzzle_futoshiki_6.size)
-        print("Visited nodes: " + str(csp.nodes))
+        print("Visited nodes: " + str(csp.nodes))"""
 
     """for puzzle in futoshiki_puzzles:
         csp = CSPBacktrackingSolver(puzzle)
@@ -133,7 +134,7 @@ if __name__ == '__main__':
             original_domains[key] = deepcopy(puzzle.domains[key])
 
         csp = CSPForwardCheckingSolver(puzzle)
-        csp.forward_checking_search({})
+        csp.forward_checking()
         results = csp.results
 
         if len(results) == 0:
@@ -144,17 +145,17 @@ if __name__ == '__main__':
             print_result(results[0], puzzle.size)
             print("Visited nodes: " + str(csp.nodes))
 
-        puzzle.domains = original_domains
-        csp = CSPAC3Solver(puzzle)
-        csp.ac3_search({})
-        results = csp.results
-
-        if len(results) == 0:
-            print('Solutions not found')
-        else:
-            print('Found {} solutions fo ac3'.format(len(results)))
-            print("First result")
-            print_result(results[0], puzzle.size)
-            print("Visited nodes: " + str(csp.nodes))
+        # puzzle.domains = original_domains
+        # csp = CSPAC3Solver(puzzle)
+        # csp.ac3_search({})
+        # results = csp.results
+        #
+        # if len(results) == 0:
+        #     print('Solutions not found')
+        # else:
+        #     print('Found {} solutions fo ac3'.format(len(results)))
+        #     print("First result")
+        #     print_result(results[0], puzzle.size)
+        #     print("Visited nodes: " + str(csp.nodes))
 
         print('**********************************************************************************')"""
