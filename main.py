@@ -13,7 +13,6 @@ from solvers.CSP_solver import CSPSolver
 # TODO imporve look ahead (add unary constraints, improve domains) and J.K. idea
 # TODO delete CSP_backtrackin_solver and CSP_forward_checking - they are in CSP_Solver
 # TODO delete print when adding to results in csp
-# TODO add timer
 
 
 def print_result(result, size):
@@ -53,9 +52,21 @@ if __name__ == '__main__':
     binary_puzzles = [puzzle_binary_6, puzzle_binary_8, puzzle_binary_10]
     futoshiki_puzzles = [puzzle_futoshiki_4, puzzle_futoshiki_5, puzzle_futoshiki_6]
 
-    algo_modes = ['BT', 'FC']  # 'LA'
+    csp = CSPSolver(puzzle_binary_6, 'LA', 'CON', 'CON')
+    csp.solve()
+    results = csp.results
+
+    if len(results) == 0:
+        print('Solutions not found')
+    else:
+        print('Found {} solutions for forward searching'.format(len(results)))
+        print("First result")
+        print_result(results[0], puzzle_binary_6.size)
+        print("Visited nodes: " + str(csp.nodes))
+
+    """algo_modes = ['BT', 'FC', 'LS']  # 'LA'
     variable_heuristics = ['CON', 'MRV']
-    value_heuristics = ['CON', 'LCV']
+    value_heuristics = ['CON', 'LCV']"""
 
     """csp = CSPAC3Solver(puzzle_futoshiki_6)
         csp.ac3_search({})
@@ -123,10 +134,12 @@ if __name__ == '__main__':
 
                     if len(results) == 0:
                         print('Solutions not found')
+                        print(" ")
                     else:
-                        print('Found {} solutions for {}, variable heuristic: {}, value heuristic: {}'
-                              .format(len(results), mode, var_heu, val_heu))
+                        print('Found {} solutions for {}, variable heuristic: {}, value heuristic: {}, time: {} s'
+                              .format(len(results), mode, var_heu, val_heu, csp.time))
                         print("First result")
                         print_result(results[0], puzzle.size)
                         print("Visited nodes: " + str(csp.nodes))
+                        print(" ")
         print('**********************************************************************************')
