@@ -12,8 +12,8 @@ from solvers.CSP_solver import CSPSolver
 
 # TODO imporve look ahead (add unary constraints, improve domains) and J.K. idea
 # TODO delete CSP_backtrackin_solver and CSP_forward_checking - they are in CSP_Solver
-# TODO add heuristic for value
 # TODO delete print when adding to results in csp
+# TODO add timer
 
 
 def print_result(result, size):
@@ -55,6 +55,7 @@ if __name__ == '__main__':
 
     algo_modes = ['BT', 'FC']  # 'LA'
     variable_heuristics = ['CON', 'MRV']
+    value_heuristics = ['CON', 'LCV']
 
     """csp = CSPAC3Solver(puzzle_futoshiki_6)
         csp.ac3_search({})
@@ -90,39 +91,42 @@ if __name__ == '__main__':
         print_result(results[0], puzzle_binary_10.size)
         print("Visited nodes: " + str(csp.nodes))"""
 
-
     """for puzzle in binary_puzzles:
         for mode in algo_modes:
             for var_heu in variable_heuristics:
-                csp = CSPSolver(puzzle, mode, var_heu)
-                csp.solve()
-                results = csp.results
+                for val_heu in value_heuristics:
+                    csp = CSPSolver(puzzle, mode, var_heu, val_heu)
+                    csp.solve()
+                    results = csp.results
 
-                print("Binray {}x{}".format(puzzle.size, puzzle.size))
+                    print("Binray {}x{}".format(puzzle.size, puzzle.size))
 
-                if len(results) == 0:
-                    print('Solutions not found')
-                else:
-                    print('Found {} solutions for {}, {}'.format(len(results), mode, var_heu))
-                    print("First result")
-                    print_result(results[0], puzzle.size)
-                    print("Visited nodes: " + str(csp.nodes))
+                    if len(results) == 0:
+                        print('Solutions not found')
+                    else:
+                        print('Found {} solutions for {}, variable heuristic: {}, value heuristic: {}'
+                              .format(len(results), mode, var_heu, val_heu))
+                        print("First result")
+                        print_result(results[0], puzzle.size)
+                        print("Visited nodes: " + str(csp.nodes))
         print('**********************************************************************************')"""
 
     for puzzle in futoshiki_puzzles:
         for mode in algo_modes:
             for var_heu in variable_heuristics:
-                csp = CSPSolver(puzzle, mode, var_heu)
-                csp.solve()
-                results = csp.results
+                for val_heu in value_heuristics:
+                    csp = CSPSolver(puzzle, mode, var_heu, val_heu)
+                    csp.solve()
+                    results = csp.results
 
-                print("Futoshiki {}x{}".format(puzzle.size, puzzle.size))
+                    print("Futoshiki {}x{}".format(puzzle.size, puzzle.size))
 
-                if len(results) == 0:
-                    print('Solutions not found')
-                else:
-                    print('Found {} solutions for {}, {}'.format(len(results), mode, var_heu))
-                    print("First result")
-                    print_result(results[0], puzzle.size)
-                    print("Visited nodes: " + str(csp.nodes))
+                    if len(results) == 0:
+                        print('Solutions not found')
+                    else:
+                        print('Found {} solutions for {}, variable heuristic: {}, value heuristic: {}'
+                              .format(len(results), mode, var_heu, val_heu))
+                        print("First result")
+                        print_result(results[0], puzzle.size)
+                        print("Visited nodes: " + str(csp.nodes))
         print('**********************************************************************************')

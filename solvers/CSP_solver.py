@@ -1,6 +1,5 @@
-from typing import Generic, TypeVar, Dict
+from typing import Generic, TypeVar, Dict, Tuple
 from copy import deepcopy
-from random import shuffle
 
 from constraints.constraint import Constraint
 from constraints.unary_constraint import UnaryConstraint
@@ -14,7 +13,7 @@ D = TypeVar('D')
 # V will be VariableConstraint and D int
 # class represents CSP solver with backtracking, forward checking ....................
 class CSPSolver(Generic[V, D]):
-    def __init__(self, puzzle: Puzzle, solving_mode: str, variable_heuristic: str):
+    def __init__(self, puzzle: Puzzle, solving_mode: str, variable_heuristic: str, value_heuristic: str):
         self.puzzle = puzzle
         self.variables: list[V] = puzzle.variables  # variables to be constrained
         self.domains: Dict[V, list[D]] = puzzle.domains  # domain of each variable
@@ -23,6 +22,7 @@ class CSPSolver(Generic[V, D]):
         self.nodes: int = 0
         self.solving_mode: str = solving_mode  # BT, FC
         self.variable_heuristic: str = variable_heuristic  # CON (consecutive), MRV (Minimum Remaining Values)
+        self.values_heuristic: str = value_heuristic  # CON (consecutive), LCV (Least Constraining Value)
         self.unary_constraints: list[V] = []
 
         for variable in self.variables:
@@ -96,6 +96,63 @@ class CSPSolver(Generic[V, D]):
         return unassigned
 
 ##################################################################################################################
+    def __get_values_by_heuristic(self, unassigned: V, assignment: Dict[V, D]):
+        if self.values_heuristic == 'CON':
+            return self.__get_consecutive_value_heuristic(unassigned)
+        elif self.values_heuristic == 'LCV':
+            return self.__get_lcv_value_heuristic(unassigned, assignment)
+
+    # get all values consecutively from domain - consecutive not empty variables
+    def __get_consecutive_value_heuristic(self, unassigned: V):
+        return self.domains[unassigned]
+
+    # get all values from domain by least constraining value
+    def __get_lcv_value_heuristic(self, unassigned: V, assignment: Dict[V, D]):
+        ranking: Dict[int, int] = {}
+        all_constraints = self.constraints[unassigned]
+        local_variables = []
+
+        for value_from_domain in self.domains[unassigned]:
+            temp_assignment = assignment.copy()
+            temp_assignment[unassigned] = value_from_domain
+
+            if self.consistent(unassigned, temp_assignment):
+                for d in self.domains[unassigned]:
+                    ranking[d] = 0
+
+                # get all EMPTY variables where [first] VariablePosition included in same constraints as var
+                for const in all_constraints:
+                    for var in const.variables:
+                        if var != unassigned and var not in assignment and var not in local_variables:
+                            local_variables.append(var)
+
+                for var in local_variables:
+                    # get constraints where [var] and [first] are together
+                    constraints_to_check = []
+                    for const in all_constraints:
+                        if var in const.variables and unassigned in const.variables:
+                            constraints_to_check.append(const)
+
+                    # add unary constraints
+                    constraints_to_check.extend(self.unary_constraints)
+
+                    # check values from domain
+                    for value in self.domains[var]:
+                        local_copy_assignment = temp_assignment.copy()
+                        local_copy_assignment[var] = value
+                        if_satisfied_forward = self.if_consistent_for_two_variables(local_copy_assignment, constraints_to_check)
+                        if not if_satisfied_forward:
+                            ranking[value_from_domain] = ranking[value_from_domain] + 1
+
+        results = [(k, v) for k, v in ranking.items()]
+        results = sorted(results, key=lambda x: x[1])
+        values = []
+        for r in results:
+            values.append(r[0])
+
+        return values
+
+##################################################################################################################
     # backtracking solver
     def __backtracking_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
@@ -105,9 +162,9 @@ class CSPSolver(Generic[V, D]):
             return
 
         unassigned: list[V] = self.__get_variables_by_heuristic(assignment)
-
-        first: V = unassigned[0]
-        for value_from_domain in self.domains[first]:
+        first = unassigned[0]
+        domain_of_unassigned: list[int] = self.__get_values_by_heuristic(first, assignment)
+        for value_from_domain in domain_of_unassigned:
             self.nodes += 1
             temp_assignment = assignment.copy()
             temp_assignment[first] = value_from_domain
@@ -134,10 +191,9 @@ class CSPSolver(Generic[V, D]):
             return
 
         unassigned: list[V] = self.__get_variables_by_heuristic(assignment)
-
         first: V = unassigned[0]
-        domain = self.domains[first]
-        for value_from_domain in domain:
+        domain_of_unassigned: list[int] = self.__get_values_by_heuristic(first, assignment)
+        for value_from_domain in domain_of_unassigned:
             self.nodes += 1
             temp_assignment = assignment.copy()
             temp_assignment[first] = value_from_domain
