@@ -46,6 +46,49 @@ if __name__ == '__main__':
     binary_puzzles = [puzzle_binary_6, puzzle_binary_8, puzzle_binary_10]
     futoshiki_puzzles = [puzzle_futoshiki_4, puzzle_futoshiki_5, puzzle_futoshiki_6]
 
+    algo_modes = ['BT', 'FC', 'FC_C']
+    variable_heuristics = ['CON', 'MRV']
+    value_heuristics = ['CON', 'LCV']
+
+    for mode in algo_modes:
+        for var_heu in variable_heuristics:
+            for val_heu in value_heuristics:
+                csp = CSPSolver(puzzle_binary_10, mode, var_heu, val_heu)
+                csp.solve()
+                results = csp.results
+
+                print("Binray {}x{}".format(puzzle_binary_10.size, puzzle_binary_10.size))
+
+                if len(results) == 0:
+                    print('Solutions not found')
+                else:
+                    print('Found {} solutions for {}, variable heuristic: {}, value heuristic: {}, time: {} s'
+                          .format(len(results), mode, var_heu, val_heu, csp.time))
+                    print("First result")
+                    print_result(results[0], puzzle_binary_10.size)
+                    print("Visited nodes: " + str(csp.nodes))
+                    print(" ")
+
+    for mode in algo_modes:
+        for var_heu in variable_heuristics:
+            for val_heu in value_heuristics:
+                csp = CSPSolver(puzzle_futoshiki_4, mode, var_heu, val_heu)
+                csp.solve()
+                results = csp.results
+
+                print("Futoshiki {}x{}".format(puzzle_futoshiki_4.size, puzzle_futoshiki_4.size))
+
+                if len(results) == 0:
+                    print('Solutions not found')
+                else:
+                    print('Found {} solutions for {}, variable heuristic: {}, value heuristic: {}, time: {} s'
+                          .format(len(results), mode, var_heu, val_heu, csp.time))
+                    print("First result")
+                    print_result(results[0], puzzle_futoshiki_4.size)
+                    print("Visited nodes: " + str(csp.nodes))
+                    print(" ")
+
+
     """csp = CSPSolver(puzzle_futoshiki_4, 'FC_C', 'CON', 'CON')
     csp.solve()
     results = csp.results
@@ -56,30 +99,6 @@ if __name__ == '__main__':
         print('Found {} solutions for LF, time: {}'.format(len(results), csp.time))
         print("First result")
         print_result(results[0], puzzle_futoshiki_4.size)
-        print("Visited nodes: " + str(csp.nodes))"""
-
-    algo_modes = ['FC', 'FC_C']
-    variable_heuristics = ['CON', 'MRV']
-    value_heuristics = ['CON', 'LCV']
-
-    """csp = CSPAC3Solver(puzzle_futoshiki_6)
-        csp.ac3_search({})
-        results = csp.results"""
-
-    """csp = CSPForwardCheckingSolver(puzzle_binary_6)
-    csp.forward_checking()
-    results = csp.results"""
-
-    """csp = CSPBacktrackingSolver(puzzle_futoshiki_6)
-    csp.backtracking_search({})
-    results = csp.results"""
-
-    """if len(results) == 0:
-        print('Solutions not found')
-    else:
-        print('Found {} solutions for forward searching'.format(len(results)))
-        print("First result")
-        print_result(results[0], puzzle_binary_6.size)
         print("Visited nodes: " + str(csp.nodes))"""
 
     """csp = CSPSolver(puzzle_binary_10, 'BT', 'RND')
@@ -117,7 +136,7 @@ if __name__ == '__main__':
                         print(" ")
         print('**********************************************************************************')"""
 
-    for puzzle in futoshiki_puzzles:
+    """for puzzle in futoshiki_puzzles:
         for mode in algo_modes:
             for var_heu in variable_heuristics:
                 for val_heu in value_heuristics:
@@ -137,4 +156,4 @@ if __name__ == '__main__':
                         print_result(results[0], puzzle.size)
                         print("Visited nodes: " + str(csp.nodes))
                         print(" ")
-        print('**********************************************************************************')
+        print('**********************************************************************************')"""

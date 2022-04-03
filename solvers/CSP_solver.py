@@ -177,6 +177,7 @@ class CSPSolver(Generic[V, D]):
         unassigned: list[V] = self.__get_variables_by_heuristic(assignment)
         first = unassigned[0]
         domain_of_unassigned: list[int] = self.__get_values_by_heuristic(first, assignment)
+
         for value_from_domain in domain_of_unassigned:
             self.nodes += 1
             temp_assignment = assignment.copy()
@@ -194,6 +195,7 @@ class CSPSolver(Generic[V, D]):
         unassigned: list[V] = self.__get_variables_by_heuristic(assignment)
         first: V = unassigned[0]
         domain_of_unassigned: list[int] = self.__get_values_by_heuristic(first, assignment)
+
         for value_from_domain in domain_of_unassigned:
             self.nodes += 1
             temp_assignment = assignment.copy()
@@ -251,7 +253,6 @@ class CSPSolver(Generic[V, D]):
     def __forward_checking_with_constraint_propagation_search(self, assignment: Dict[V, D]):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
-            print(len(self.results))
             self.results.append(assignment)
             return
 
@@ -315,13 +316,7 @@ class CSPSolver(Generic[V, D]):
                             # call helper to look deeper
                             response = self.__forward_checking_with_constraint_propagation_helper(local_copy_assignment, var)
 
-                            """if response:
-                                #temp_assignment[var] = self.domains[var][0]
-                                # to wpisuję do siatki zmienną,
-                                #pass
-                                pass"""
-
-                            # if error occurred - start to turn back
+                            # if empty domain found on way deeper - start to turn back
                             if not response:
                                 if_domains_empty = True
 
@@ -375,6 +370,7 @@ class CSPSolver(Generic[V, D]):
                     self.domains[key] = saved_domains[key]
                 return False
 
+            # if domain has one value - check further
             if len(self.domains[var]) == 1:
                 local_copy_assignment = assignment.copy()
                 local_copy_assignment[var] = self.domains[var][0]
