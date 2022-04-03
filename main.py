@@ -46,7 +46,7 @@ if __name__ == '__main__':
     binary_puzzles = [puzzle_binary_6, puzzle_binary_8, puzzle_binary_10]
     futoshiki_puzzles = [puzzle_futoshiki_4, puzzle_futoshiki_5, puzzle_futoshiki_6]
 
-    """csp = CSPSolver(puzzle_futoshiki_4, 'LA', 'CON', 'CON')
+    """csp = CSPSolver(puzzle_futoshiki_4, 'FC_C', 'CON', 'CON')
     csp.solve()
     results = csp.results
 
@@ -55,12 +55,12 @@ if __name__ == '__main__':
     else:
         print('Found {} solutions for LF, time: {}'.format(len(results), csp.time))
         print("First result")
-        print_result(results[0], puzzle_futoshiki_6.size)
+        print_result(results[0], puzzle_futoshiki_4.size)
         print("Visited nodes: " + str(csp.nodes))"""
 
-    algo_modes = ['BT', 'FC', 'LA']
-    variable_heuristics = ['CON', 'MRV']
-    value_heuristics = ['CON', 'LCV']
+    algo_modes = ['FC', 'FC_C']
+    variable_heuristics = ['MRV']
+    value_heuristics = ['LCV']
 
     """csp = CSPAC3Solver(puzzle_futoshiki_6)
         csp.ac3_search({})
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         print_result(results[0], puzzle_binary_10.size)
         print("Visited nodes: " + str(csp.nodes))"""
 
-    for puzzle in binary_puzzles:
+    """for puzzle in binary_puzzles:
         for mode in algo_modes:
             for var_heu in variable_heuristics:
                 for val_heu in value_heuristics:
@@ -115,7 +115,7 @@ if __name__ == '__main__':
                         print_result(results[0], puzzle.size)
                         print("Visited nodes: " + str(csp.nodes))
                         print(" ")
-        print('**********************************************************************************')
+        print('**********************************************************************************')"""
 
     for puzzle in futoshiki_puzzles:
         for mode in algo_modes:
