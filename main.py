@@ -59,8 +59,8 @@ if __name__ == '__main__':
         print("Visited nodes: " + str(csp.nodes))"""
 
     algo_modes = ['FC', 'FC_C']
-    variable_heuristics = ['MRV']
-    value_heuristics = ['LCV']
+    variable_heuristics = ['CON', 'MRV']
+    value_heuristics = ['CON', 'LCV']
 
     """csp = CSPAC3Solver(puzzle_futoshiki_6)
         csp.ac3_search({})

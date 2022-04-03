@@ -249,7 +249,6 @@ class CSPSolver(Generic[V, D]):
 
     # ********************************* forward checking with constraints propagation *********************************
     def __forward_checking_with_constraint_propagation_search(self, assignment: Dict[V, D]):
-        ################################################################################################# obrazek 1 J.K
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
             print(len(self.results))
@@ -260,7 +259,6 @@ class CSPSolver(Generic[V, D]):
         first: V = unassigned[0]
         domain_of_unassigned: list[int] = self.__get_values_by_heuristic(first, assignment)
 
-        ################################################################### czerwone 3
         for value_from_domain in domain_of_unassigned:
             self.nodes += 1
             temp_assignment = assignment.copy()
@@ -271,7 +269,6 @@ class CSPSolver(Generic[V, D]):
                 all_constraints = self.constraints[first]
                 local_variables = []
 
-                ################################################################### zolte x
                 # get all EMPTY variables where [first] VariablePosition included in same constraints as var
                 for const in all_constraints:
                     for var in const.variables:
@@ -311,33 +308,22 @@ class CSPSolver(Generic[V, D]):
                         if len(self.domains[var]) == 0:
                             if_domains_empty = True
 
-                        ###################################################################### skonczyl sie zwykly fc - wg JK sprawdzamy czy len(domains[var]) to 1
-
+                        # if domain length equal to 1, look deeper
                         if len(self.domains[var]) == 1:
-                            ###################################################################### zrób to co obrazek 2 J.K
-                            # wpisz mi w tą zmienną jej jedyną wartość z dziedziny
                             local_copy_assignment = temp_assignment.copy()
                             local_copy_assignment[var] = self.domains[var][0]
-                            # wywołujemy helpera bo dla var mamy ustaloną wartość
-
-                            # s_d: Dict[V, list[int]] = {}
-                            # for key in self.variables:
-                            #     s_d[key] = deepcopy(self.domains[key])
-
+                            # call helper to look deeper
                             response = self.__forward_checking_with_constraint_propagation_helper(local_copy_assignment, var)
 
-                            # for key in self.variables:
-                            #     self.domains[key] = s_d[key]
-
-                            if response:
+                            """if response:
                                 #temp_assignment[var] = self.domains[var][0]
                                 # to wpisuję do siatki zmienną,
                                 #pass
-                                pass
+                                pass"""
 
+                            # if error occurred - start to turn back
                             if not response:
-                                # czyli wykrył, że dalej się wypierdoli
-                                if_domains_empty = True  # moze sworzyć inną flage do tego
+                                if_domains_empty = True
 
                 if not if_domains_empty:
                     self.__forward_checking_with_constraint_propagation_search(temp_assignment)
@@ -349,7 +335,6 @@ class CSPSolver(Generic[V, D]):
     def __forward_checking_with_constraint_propagation_helper(self, assignment: Dict[V, D], variable: V):
         # if every variable has assigned value
         if len(assignment) == len(self.variables):
-            # print(len(self.results))
             return True
 
         all_constraints = self.constraints[variable]
@@ -364,9 +349,6 @@ class CSPSolver(Generic[V, D]):
         saved_domains: Dict[V, list[int]] = {}
         for key in local_variables:
             saved_domains[key] = deepcopy(self.domains[key])
-
-        # flag for turn back
-        if_domains_empty = False
 
         for var in local_variables:
             # get constraints where [var] and [first] are together
@@ -389,7 +371,6 @@ class CSPSolver(Generic[V, D]):
 
             # if domain empty - start to turn back
             if len(self.domains[var]) == 0:
-                if_domains_empty = True
                 for key in local_variables:
                     self.domains[key] = saved_domains[key]
                 return False
@@ -402,7 +383,6 @@ class CSPSolver(Generic[V, D]):
                     self.domains[key] = saved_domains[key]
                 return response
 
-        if not if_domains_empty:
-            for key in local_variables:
-                self.domains[key] = saved_domains[key]
-            return True
+        for key in local_variables:
+            self.domains[key] = saved_domains[key]
+        return True
