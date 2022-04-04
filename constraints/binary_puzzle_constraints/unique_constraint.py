@@ -17,13 +17,21 @@ class UniqueConstraint(Constraint[VariablePosition, int]):
         for i in range(self.size):
             current_row: list[int] = []
             current_column: list[int] = []
+            current_row_vars: list[VariablePosition] = []
+            current_column_vars: list[VariablePosition] = []
 
             for position in assignment.keys():
                 if position.row_number == i:
-                    current_row.append(assignment[position])
+                    current_row_vars.append(position)
 
                 if position.column_number == i:
-                    current_column.append(assignment[position])
+                    current_column_vars.append(position)
+
+            current_column_vars = sorted(current_column_vars, key=lambda x: x.row_number)
+            current_column = [assignment[position] for position in current_column_vars]
+
+            current_row_vars = sorted(current_row_vars, key=lambda x: x.column_number)
+            current_row = [assignment[position] for position in current_row_vars]
 
             if len(current_row) == self.size:
                 fully_filled_rows.append(current_row)
